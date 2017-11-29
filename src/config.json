@@ -1,0 +1,31 @@
+{
+  "name": "GithubTrigger",
+  "type": "trigger",
+  "execProggram": "node",
+  "main": "app.js",
+  "exposeRoute": true,
+  "imgUrl": "github.png",
+  "description": "Handle github webhooks request",
+  "methods": [{
+    "name": "webhook",
+    "route": "post /github/webhook",
+    "viewName": "Github Webhook",
+    "params": [{
+        "name": "REPO_URL",
+        "viewName": "Repository URL",
+        "type": "string"
+      },
+      {
+        "name": "BRANCH",
+        "viewName": "Branch",
+        "type": "string"
+      },
+      {
+        "name": "SECRET",
+        "viewName": "Secret",
+        "type": "string"
+      }
+    ],
+    "actionString": "REPO_URL BRANCH SECRET"
+  }]
+}

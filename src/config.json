@@ -1,7 +1,7 @@
 {
   "name": "GithubTrigger",
   "type": "trigger",
-  "execProggram": "node",
+  "execProgram": "node",
   "main": "app.js",
   "exposeRoute": true,
   "imgUrl": "github.png",

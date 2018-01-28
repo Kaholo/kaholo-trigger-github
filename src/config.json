@@ -5,6 +5,7 @@
   "main": "app.js",
   "exposeRoute": true,
   "imgUrl": "github.png",
+  "version": "1.0.0",
   "description": "Handle github webhooks request",
   "methods": [{
     "name": "webhook",

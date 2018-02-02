@@ -13,19 +13,7 @@ module.exports = {
         let branch = push.ref.slice(11); // get only the branch name
         let signature = req.headers["x-hub-signature"] ? req.headers["x-hub-signature"].slice(5) : null;
         let p = new Promise((resolve, reject) => {
-            console.log("Searching plugins")
-            pluginsService.filterPlugins({ name: config.name }).then((plugins) => {
-                console.log("found plugins");
-                if (plugins.length === 0) {
-                    reject("No plugin found");
-                }
-                let plugin = plugins[0];
-                if (!plugin.active) {
-                    reject("Plugin is disabled");
-                }
-                resolve(Trigger.find({ plugin: plugin._id }))
-
-            })
+            resolve(Trigger.find({ plugin: config.name }))
         }).then((triggers) => {
             console.log("Found trigger", triggers.length);
             triggers.forEach(trigger =>
@@ -33,7 +21,7 @@ module.exports = {
                     const triggerRepoUrl = trigger.params.find(o => o.name === 'REPO_URL');
                     const triggerSecret = trigger.params.find(o => o.name === 'SECRET');
                     const triggerBranch = trigger.params.find(o => o.name === 'BRANCH');
-
+                    console.log(triggerRepoUrl, triggerSecret, triggerBranch);
                     if (url !== triggerRepoUrl.value) {
                         reject("Not same repo");
                     }
@@ -69,6 +57,7 @@ module.exports = {
                     }
                 }).then(() => {
                     res.send('OK');
+                    console.log(trigger.map);
                     mapExecutionService.execute(trigger.map, 1, 0, req)
                 }).catch((error) => res.send(error))
             )

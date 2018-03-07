@@ -58,7 +58,11 @@ module.exports = {
                 }).then(() => {
                     res.send('OK');
                     console.log(trigger.map);
-                    mapExecutionService.execute(trigger.map, 1, 0, req)
+                    let message = 'Started by github trigger';
+                    if (push.sender && push.sender.login) {
+                        message += ` (push by ${push.sender.login}`
+                    }
+                    mapExecutionService.execute(trigger.map, null, 0, req, trigger.configuration, message);
                 }).catch((error) => res.send(error))
             )
         })

@@ -58,7 +58,7 @@ module.exports = {
                 }).then(() => {
                     res.send('OK');
                     console.log(trigger.map);
-                    let message = 'Started by github trigger';
+                    let message = trigger.name + ' - Started by github trigger';
                     if (push.sender && push.sender.login) {
                         message += ` (push by ${push.sender.login}`
                     }

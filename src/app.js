@@ -1,13 +1,10 @@
 const crypto = require('crypto');
 const config = require("./config");
-const Plugin = require("../../../api/models/plugin.model");
-const pluginsService = require("../../../api/services/plugins.service");
 const mapExecutionService = require("../../../api/services/map-execution.service");
 const Trigger = require("../../../api/models/map-trigger.model");
 
 module.exports = {
     webhook: function (req, res) {
-        let triggerPlugin;
         let push = req.body;
         let url = push.repository.clone_url;
         let branch = push.ref.slice(11); // get only the branch name
@@ -56,16 +53,19 @@ module.exports = {
                         reject("Unexpected error occurred");
                     }
                 }).then(() => {
-                    res.send('OK');
                     console.log(trigger.map);
                     let message = 'Started by github trigger';
                     if (push.sender && push.sender.login) {
                         message += ` (push by ${push.sender.login}`
                     }
                     mapExecutionService.execute(trigger.map, null, 0, req, trigger.configuration, message);
-                }).catch((error) => res.send(error))
+                })
             )
         })
+        .then(() =>{
+            res.send('OK');
+        })
+        .catch((error) => res.send(error))
 
     }
 };

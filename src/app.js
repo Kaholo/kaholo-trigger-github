@@ -58,7 +58,7 @@ module.exports = {
                     if (push.sender && push.sender.login) {
                         message += ` (push by ${push.sender.login}`
                     }
-                    mapExecutionService.execute(trigger.map, null, 0, req, trigger.configuration, message);
+                    mapExecutionService.execute(trigger.map, null, req.io, trigger.configuration, message);
                 })
             )
         })

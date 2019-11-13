@@ -62,7 +62,7 @@ module.exports = {
                     message += ` (push by ${push.sender.login}`
                 }
                 console.log(`******** Github: executing map ${trigger.map} ********`);
-                mapExecutionService.execute(trigger.map, null, req.io, trigger.configuration, message);
+                mapExecutionService.execute(trigger.map, null, req.io, {config : trigger.configuration}, message);
             }).catch(err=>{
                 console.error(err);
             })

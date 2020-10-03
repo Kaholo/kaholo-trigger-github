@@ -1,32 +1,90 @@
 {
-  "name": "GithubTrigger",
+  "name": "Github-Trigger",
   "type": "trigger",
   "execProgram": "node",
   "main": "app.js",
-  "exposeRoute": true,
   "imgUrl": "github.png",
-  "version": "1.2.0",
-  "description": "Handle github webhooks request",
-  "methods": [{
-    "name": "webhook",
-    "route": "post /github/webhook",
-    "viewName": "Github Webhook",
-    "params": [{
-        "name": "REPO_URL",
-        "viewName": "Repository URL",
-        "type": "string"
-      },
-      {
-        "name": "BRANCH",
-        "viewName": "Branch",
-        "type": "string"
-      },
-      {
-        "name": "SECRET",
-        "viewName": "Secret",
-        "type": "string"
-      }
-    ],
-    "actionString": "REPO_URL BRANCH SECRET"
-  }]
+  "version": "1.0.1",
+  "description": "Github plugin",
+  "settings":[
+    {
+      "name":"SECRET",
+      "viewName":"Webhook secret",
+      "type":"string"
+    }
+  ],
+  "methods": [
+    {
+      "name": "webhookPush",
+      "route": "post /webhook/Github/push",
+      "viewName": "Github Webhook push",
+      "params": [
+        {
+          "name": "SECRET",
+          "viewName": "Webhook secret",
+          "type": "string"
+        },
+        {
+          "name": "PUSH_BRANCH",
+          "viewName": "branch",
+          "type": "string"
+        },
+        {
+          "name": "REPO_URL",
+          "viewName": "Git repo",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "webhookPR",
+      "route": "post /webhook/Github/pr",
+      "viewName": "Github Webhook pull request",
+      "params": [
+        {
+          "name": "SECRET",
+          "viewName": "Webhook secret",
+          "type": "string"
+        },
+        {
+          "name": "TO_BRANCH",
+          "viewName": "Target branch",
+          "type": "string"
+        },
+        {
+          "name": "FROM_BRANCH",
+          "viewName": "Source branch",
+          "type": "string"
+        },
+        {
+          "name": "REPO_URL",
+          "viewName": "Github clone repo url",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "PUSH_TO_TAG",
+      "route": "post /webhook/github/ptt",
+      "viewName" : "Github webhook push to tag",
+      "params": [
+        {
+          "name": "SECRET",
+          "viewName": "Webhook secret",
+          "type": "string"
+        },
+        {
+          "name": "REPO_NAME",
+          "viewName": "Git repo",
+          "type": "string"
+        },
+        {
+          "name": "TAG_PATTERN",
+          "viewName": "Tag Pattern (starts with)",
+          "type": "string"
+        }
+
+      ]
+    }
+  ]
 }

@@ -79,11 +79,6 @@
           "type": "string"
         },
         {
-          "name": "TAG_NAME",
-          "viewName" : "Tag name",
-          "type" : "string"
-        },
-        {
           "name": "TAG_PATTERN",
           "viewName": "Tag Pattern (starts with)",
           "type": "string"

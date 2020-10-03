@@ -170,7 +170,6 @@ function pushToTag (req,res) {
 function  validatePTT(trigger, {tagName, created, repoName, secret}) {
     return new Promise((resolve, reject) => {
         const triggerRepoName = trigger.params.find(o => o.name === 'REPO_NAME');
-        const triggerTagName = trigger.params.find(o => o.name === 'TAG_NAME');
         const triggerSecret = trigger.params.find(o => o.name === 'SECRET');
         const triggerTagPattern = trigger.params.find(o => o.name === 'TAG_PATTERN');
         
@@ -189,16 +188,8 @@ function  validatePTT(trigger, {tagName, created, repoName, secret}) {
             return reject("Not same repo");
         }
 
-        /**
-         * Check tag name matches the trigger tag name or the trigger tag pattern
-         */
-        
-        if (triggerTagName.value && triggerTagName.value != tagName) {
-            return reject("Tag is not equal")
-        }
-
-        if (triggerTagPattern.value && !tagName.startsWith(triggerTagPattern.value)) {
-            return reject("Tag name does not start as the pattern")
+        if (triggerTagPattern.value && !minimatch(tagName, triggerTagPattern.value)) {
+            return reject("Not matching pushed branch")
         }
         
         /**

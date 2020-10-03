@@ -148,7 +148,85 @@ function validateTriggerPush(trigger, {repositoryURL, pushBranch, secret}){
     });
 }
 
+
+function pushToTag (req,res) {
+    let push = req.body;
+    
+    if(!push.repository) {
+        console.log('Repo not found')
+        return res.send('repo not found')
+    }
+    
+    //let repositoryURL = push.repository.clone_url //Clone URL
+    //let pushBranch = push.ref.slice(11); //Get target branch name
+    let tagName = push.ref.split("/").pop();
+    let created = push.created;
+    let repoName = push.repository.name;
+    let secret = req.headers["x-hub-signature"] ? req.headers["x-hub-signature"].slice(5) : null;
+    findTriggers(push, validatePTT, {tagName, created, repoName, secret},req, res);
+}
+
+
+function  validatePTT(trigger, {tagName, created, repoName, secret}) {
+    return new Promise((resolve, reject) => {
+        const triggerRepoName = trigger.params.find(o => o.name === 'REPO_NAME');
+        const triggerTagName = trigger.params.find(o => o.name === 'TAG_NAME');
+        const triggerSecret = trigger.params.find(o => o.name === 'SECRET');
+        const triggerTagPattern = trigger.params.find(o => o.name === 'TAG_PATTERN');
+        
+        /**
+         * Make sure that it is a tag created and NOT deleted
+         */
+
+         if (!created) {
+             return reject("Tag is deleted")
+         }
+        /**
+         * Check if the Repo URL is provided (else consider as ANY)
+         * Check that the Repo URL is the same as provided by the Trigger and if not provided 
+        */
+        if (triggerRepoName.value && repoName !== triggerRepoName.value) {
+            return reject("Not same repo");
+        }
+
+        /**
+         * Check tag name matches the trigger tag name or the trigger tag pattern
+         */
+        
+        if (triggerTagName.value && triggerTagName.value != tagName) {
+            return reject("Tag is not equal")
+        }
+
+        if (triggerTagPattern.value && !tagName.startsWith(triggerTagPattern.value)) {
+            return reject("Tag name does not start as the pattern")
+        }
+        
+        /**
+         * Handle the secret
+         */
+        if (secret && !triggerSecret.value) {
+            return reject("Secret was expected yet none provided");
+        } else if (secret && triggerSecret.value) {
+            const hmac = crypto.createHmac('SHA1', triggerSecret.value);
+            hmac.on('readable', () => {
+                const data = hmac.read();
+                if (data) {
+                    let hash = data.toString('hex');
+                    if (!(hash === secret)) {
+                        reject("The signature doesn't match the trigger's secret");
+                    } else {
+                        resolve()
+                    }
+                }
+            });
+        } 
+        return resolve();
+    });
+}
+
+
 module.exports = {
     webhookPush: controllerfunctionPush,
+    PUSH_TO_TAG: pushToTag,
     webhookPR: controllerfunctionPR
 }

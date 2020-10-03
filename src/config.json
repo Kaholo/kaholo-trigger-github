@@ -62,6 +62,34 @@
           "type": "string"
         }
       ]
+    },
+    {
+      "name": "PUSH_TO_TAG",
+      "route": "post /webhook/github/ptt",
+      "viewName" : "Github webhook push to tag",
+      "params": [
+        {
+          "name": "SECRET",
+          "viewName": "Webhook secret",
+          "type": "string"
+        },
+        {
+          "name": "REPO_NAME",
+          "viewName": "Git repo",
+          "type": "string"
+        },
+        {
+          "name": "TAG_NAME",
+          "viewName" : "Tag name",
+          "type" : "string"
+        },
+        {
+          "name": "TAG_PATTERN",
+          "viewName": "Tag Pattern (starts with)",
+          "type": "string"
+        }
+
+      ]
     }
   ]
 }

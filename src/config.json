@@ -74,8 +74,8 @@
           "type": "string"
         },
         {
-          "name": "REPO_NAME",
-          "viewName": "Git repo",
+          "name": "REPO_URL",
+          "viewName": "Git repo url",
           "type": "string"
         },
         {

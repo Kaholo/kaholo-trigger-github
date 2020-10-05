@@ -161,15 +161,15 @@ function pushToTag (req,res) {
     //let pushBranch = push.ref.slice(11); //Get target branch name
     let tagName = push.ref.split("/").pop();
     let created = push.created;
-    let repoName = push.repository.name;
+    let gitURL = push.repository.git_url;
     let secret = req.headers["x-hub-signature"] ? req.headers["x-hub-signature"].slice(5) : null;
-    findTriggers(push, validatePTT, {tagName, created, repoName, secret},req, res);
+    findTriggers(push, validatePTT, {tagName, created, gitURL, secret},req, res);
 }
 
 
-function  validatePTT(trigger, {tagName, created, repoName, secret}) {
+function  validatePTT(trigger, {tagName, created, gitURL, secret}) {
     return new Promise((resolve, reject) => {
-        const triggerRepoName = trigger.params.find(o => o.name === 'REPO_NAME');
+        const triggerGitURL = trigger.params.find(o => o.name === 'GIT_URL');
         const triggerSecret = trigger.params.find(o => o.name === 'SECRET');
         const triggerTagPattern = trigger.params.find(o => o.name === 'TAG_PATTERN');
         
@@ -184,7 +184,7 @@ function  validatePTT(trigger, {tagName, created, repoName, secret}) {
          * Check if the Repo URL is provided (else consider as ANY)
          * Check that the Repo URL is the same as provided by the Trigger and if not provided 
         */
-        if (triggerRepoName.value && repoName !== triggerRepoName.value) {
+        if (triggerGitURL.value && gitURL !== triggerGitURL.value) {
             return reject("Not same repo");
         }
 

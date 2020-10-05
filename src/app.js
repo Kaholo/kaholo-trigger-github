@@ -169,7 +169,7 @@ function pushToTag (req,res) {
 
 function  validatePTT(trigger, {tagName, created, gitURL, secret}) {
     return new Promise((resolve, reject) => {
-        const triggerGitURL = trigger.params.find(o => o.name === 'GIT_URL');
+        const triggerGitURL = trigger.params.find(o => o.name === 'REPO_URL');
         const triggerSecret = trigger.params.find(o => o.name === 'SECRET');
         const triggerTagPattern = trigger.params.find(o => o.name === 'TAG_PATTERN');
         

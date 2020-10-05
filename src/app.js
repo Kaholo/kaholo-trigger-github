@@ -161,7 +161,7 @@ function pushToTag (req,res) {
     //let pushBranch = push.ref.slice(11); //Get target branch name
     let tagName = push.ref.split("/").pop();
     let created = push.created;
-    let gitURL = push.repository.git_url;
+    let gitURL = push.repository.url;
     let secret = req.headers["x-hub-signature"] ? req.headers["x-hub-signature"].slice(5) : null;
     findTriggers(push, validatePTT, {tagName, created, gitURL, secret},req, res);
 }

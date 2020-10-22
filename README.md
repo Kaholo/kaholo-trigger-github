@@ -1,10 +1,9 @@
-# kaholo-plugin-GithubTrigger
+# kaholo-trigger-github
 Simple webhook trigger for Kaholo
 
 ## How to use:
 After installing the plugin on Kaholo,
-on your GitHub repository, create a new webhook and set the following URL:
-**{KAHOLO_URL}/github/webhook**
+on your GitHub repository, create a new webhook and set the URL required by each method.
 
 Whenever creating a new Trigger in Kaholo, you will need to specify the following:
 * Repository URL: The repository which pushing to will start the execution (e.g https://github.com/Kaholo/kaholo-plugin-GithubTrigger.git) 
@@ -14,7 +13,7 @@ Whenever creating a new Trigger in Kaholo, you will need to specify the followin
 ## Git Push:
 This trigger whenever there is a push to a repository.
 
-## Webhook URL:
+### Webhook URL:
 **{KAHOLO_URL}/webhook/github/push**
 
 ### Parameters:
@@ -25,7 +24,7 @@ This trigger whenever there is a push to a repository.
 ## Github Pull Request merge:
 This trigger whenever there is merge of a pull request.
 
-## Webhook URL:
+### Webhook URL:
 **{KAHOLO_URL}/webhook/github/pr**
 
 ### Parameters:
@@ -38,7 +37,7 @@ This trigger whenever there is merge of a pull request.
 ## Git Push tag:
 This trigger whenever there is a push of a tag.
 
-## Webhook URL:
+### Webhook URL:
 **{KAHOLO_URL}/webhook/github/pt**
 
 ### Parameters:

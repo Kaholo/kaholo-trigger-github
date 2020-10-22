@@ -4,7 +4,7 @@
   "execProgram": "node",
   "main": "app.js",
   "imgUrl": "github.png",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Github plugin",
   "settings":[
     {
@@ -16,30 +16,30 @@
   "methods": [
     {
       "name": "webhookPush",
-      "route": "post /webhook/Github/push",
-      "viewName": "Github Webhook push",
+      "route": "post /webhook/github/push",
+      "viewName": "Github Push",
       "params": [
         {
           "name": "SECRET",
-          "viewName": "Webhook secret",
+          "viewName": "Secret",
           "type": "string"
         },
         {
           "name": "PUSH_BRANCH",
-          "viewName": "branch",
+          "viewName": "Branch",
           "type": "string"
         },
         {
           "name": "REPO_URL",
-          "viewName": "Git repo",
+          "viewName": "Repo URL",
           "type": "string"
         }
       ]
     },
     {
       "name": "webhookPR",
-      "route": "post /webhook/Github/pr",
-      "viewName": "Github Webhook pull request",
+      "route": "post /webhook/github/pr",
+      "viewName": "Github pull request merge",
       "params": [
         {
           "name": "SECRET",
@@ -58,15 +58,15 @@
         },
         {
           "name": "REPO_URL",
-          "viewName": "Github clone repo url",
+          "viewName": "Github Repo URL",
           "type": "string"
         }
       ]
     },
     {
-      "name": "PUSH_TO_TAG",
-      "route": "post /webhook/github/ptt",
-      "viewName" : "Github webhook push to tag",
+      "name": "webhookPushTag",
+      "route": "post /webhook/github/pt",
+      "viewName" : "Github Push tag",
       "params": [
         {
           "name": "SECRET",
@@ -80,7 +80,7 @@
         },
         {
           "name": "TAG_PATTERN",
-          "viewName": "Tag Pattern (starts with)",
+          "viewName": "Tag Pattern",
           "type": "string"
         }
 

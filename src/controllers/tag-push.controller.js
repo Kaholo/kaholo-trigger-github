@@ -10,8 +10,6 @@ function controller(req, res) {
     return res.send("repo not found");
   }
 
-  //let repositoryURL = push.repository.clone_url //Clone URL
-  //let pushBranch = push.ref.slice(11); //Get target branch name
   let tagName = push.ref.split("/").pop();
   let created = push.created;
   let repoName = push.repository.name;
@@ -21,42 +19,34 @@ function controller(req, res) {
 
   findTriggers(
     push,
-    validatePTT,
+    validatePT,
     { tagName, created, repoName, secret },
     req,
-    res
+    res,
+    "webhookPushTag"
   );
 }
 
-async function validatePTT(trigger, { tagName, created, repoName, secret }) {
-  const triggerRepoName = trigger.params.find((o) => o.name === "REPO_NAME");
-  const triggerSecret = trigger.params.find((o) => o.name === "SECRET");
-  const triggerTagPattern = trigger.params.find(
-    (o) => o.name === "TAG_PATTERN"
-  );
+async function validatePT(trigger, { tagName, created, repoName, secret }) {
+  const triggerRepoName = (trigger.params.find((o) => o.name === "repoName").value || "").trim();
+  const triggerSecret = (trigger.params.find((o) => o.name === "secret").value || "").trim();
+  const triggerTagPattern = (trigger.params.find((o) => o.name === "tagPat").value || "").trim();
 
-  /**
-   * Make sure that it is a tag created and NOT deleted
-   */
+  // Make sure that it is a tag created and NOT deleted
   if (!created) {
     throw "Tag is deleted";
   }
-  /**
-   * Check if the Repo URL is provided (else consider as ANY)
-   * Check that the Repo URL is the same as provided by the Trigger and if not provided
-   */
-  if (triggerRepoName.value && repoName !== triggerRepoName.value) {
+  // Check if the Repo Name is provided (else consider as ANY)
+  if (triggerRepoName && triggerRepoName !== repoName) {
     throw "Repo do not match";
   }
 
-  if (triggerTagPattern.value && !minimatch(tagName, triggerTagPattern.value)) {
+  if (triggerTagPattern && !minimatch(tagName, triggerTagPattern)) {
     throw "Tag do not match";
   }
 
-  /**
-   * verify signature
-   */
-  return verifySignature(secret, triggerSecret.value);
+  // Verify signature
+  return verifySignature(secret, triggerSecret);
 }
 
 module.exports = controller;

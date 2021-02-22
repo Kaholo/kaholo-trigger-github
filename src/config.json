@@ -3,16 +3,9 @@
   "type": "trigger",
   "execProgram": "node",
   "main": "app.js",
-  "imgUrl": "github.png",
-  "version": "1.3.0",
-  "description": "Github plugin",
-  "settings":[
-    {
-      "name":"SECRET",
-      "viewName":"Webhook secret",
-      "type":"string"
-    }
-  ],
+  "imgUrl": "logo.png",
+  "version": "1.4.1",
+  "description": "Handles Github webhooks",
   "methods": [
     {
       "name": "webhookPush",
@@ -20,18 +13,18 @@
       "viewName": "Github Push",
       "params": [
         {
-          "name": "SECRET",
+          "name": "secret",
           "viewName": "Secret",
           "type": "string"
         },
         {
-          "name": "PUSH_BRANCH",
-          "viewName": "Branch",
+          "name": "branchPat",
+          "viewName": "Branch Pattern",
           "type": "string"
         },
         {
-          "name": "REPO_URL",
-          "viewName": "Repo URL",
+          "name": "repoName",
+          "viewName": "Repo Name",
           "type": "string"
         }
       ]
@@ -39,27 +32,50 @@
     {
       "name": "webhookPR",
       "route": "post /webhook/github/pr",
-      "viewName": "Github pull request merge",
+      "viewName": "Github pull request",
       "params": [
         {
-          "name": "SECRET",
+          "name": "secret",
           "viewName": "Webhook secret",
           "type": "string"
         },
         {
-          "name": "TO_BRANCH",
+          "name": "toBranch",
           "viewName": "Target branch",
           "type": "string"
         },
         {
-          "name": "FROM_BRANCH",
+          "name": "fromBranch",
           "viewName": "Source branch",
           "type": "string"
         },
         {
-          "name": "REPO_URL",
-          "viewName": "Github Repo URL",
+          "name": "repoName",
+          "viewName": "Repo Name",
           "type": "string"
+        },
+        {
+          "name": "actionType",
+          "viewName": "Trigger on action",
+          "type": "options",
+          "options": [
+            {
+              "id": "any",
+              "name": "Any"
+            },
+            {
+              "id": "opened",
+              "name": "Opened"
+            },
+            {
+              "id": "merged",
+              "name": "Merged"
+            },
+            {
+              "id": "declined",
+              "name": "Declined"
+            }
+          ]
         }
       ]
     },
@@ -69,21 +85,20 @@
       "viewName" : "Github Push tag",
       "params": [
         {
-          "name": "SECRET",
+          "name": "secret",
           "viewName": "Webhook secret",
           "type": "string"
         },
         {
-          "name": "REPO_NAME",
-          "viewName": "Git repo",
+          "name": "repoName",
+          "viewName": "Repo Name",
           "type": "string"
         },
         {
-          "name": "TAG_PATTERN",
+          "name": "tagPat",
           "viewName": "Tag Pattern",
           "type": "string"
         }
-
       ]
     }
   ]

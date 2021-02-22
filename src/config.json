@@ -4,8 +4,8 @@
   "execProgram": "node",
   "main": "app.js",
   "imgUrl": "logo.png",
-  "version": "1.4.0",
-  "description": "Github plugin",
+  "version": "1.4.1",
+  "description": "Handles Github webhooks",
   "methods": [
     {
       "name": "webhookPush",
@@ -32,7 +32,7 @@
     {
       "name": "webhookPR",
       "route": "post /webhook/github/pr",
-      "viewName": "Github pull request merge",
+      "viewName": "Github pull request",
       "params": [
         {
           "name": "secret",
@@ -53,6 +53,29 @@
           "name": "repoName",
           "viewName": "Repo Name",
           "type": "string"
+        },
+        {
+          "name": "actionType",
+          "viewName": "Trigger on action",
+          "type": "options",
+          "options": [
+            {
+              "id": "any",
+              "name": "Any"
+            },
+            {
+              "id": "opened",
+              "name": "Opened"
+            },
+            {
+              "id": "merged",
+              "name": "Merged"
+            },
+            {
+              "id": "declined",
+              "name": "Declined"
+            }
+          ]
         }
       ]
     },

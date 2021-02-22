@@ -29,28 +29,24 @@ function controller(req, res) {
 }
 
 async function validateTriggerPush(trigger, { repoName, branch, secret }) {
-  const triggerRepoName = trigger.params.find((o) => o.name === "repoName");
-  const triggerBranchPat = trigger.params.find((o) => o.name === "branchPat");
-  const triggerSecret = trigger.params.find((o) => o.name === "secret");
+  const triggerRepoName = (trigger.params.find((o) => o.name === "repoName").value || "").trim();
+  const triggerBranchPat = (trigger.params.find((o) => o.name === "branchPat").value || "").trim();
+  const triggerSecret = (trigger.params.find((o) => o.name === "secret").value || "").trim();
   /**
    * Check if the Repo URL is provided (else consider as ANY)
    * Check that the Repo URL is the same as provided by the Trigger and if not provided
    */
-  if (triggerRepoName.value && repoName !== triggerRepoName.value) {
+  if (triggerRepoName && repoName !== triggerRepoName) {
     throw "Not same repo";
   }
 
-  /**
-   * Check that To branch provided - else - consider as any.
-   */
-  if (triggerBranchPat.value && !minimatch(branch, triggerBranchPat.value)) {
+  // Check that To branch provided - else - consider as any.
+  if (triggerBranchPat && !minimatch(branch, triggerBranchPat)) {
     throw "Not matching pushed branch";
   }
 
-  /**
-   * verify the signature
-   */
-  return verifySignature(secret, triggerSecret.value);
+  // Verify the signature
+  return verifySignature(secret, triggerSecret);
 }
 
 module.exports = controller;

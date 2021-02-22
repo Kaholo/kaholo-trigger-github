@@ -24,16 +24,15 @@ function controller(req, res) {
     validatePTT,
     { tagName, created, repoName, secret },
     req,
-    res
+    res,
+    "webhookPushTag"
   );
 }
 
 async function validatePTT(trigger, { tagName, created, repoName, secret }) {
-  const triggerRepoName = trigger.params.find((o) => o.name === "REPO_NAME");
-  const triggerSecret = trigger.params.find((o) => o.name === "SECRET");
-  const triggerTagPattern = trigger.params.find(
-    (o) => o.name === "TAG_PATTERN"
-  );
+  const triggerRepoName = trigger.params.find((o) => o.name === "repoName");
+  const triggerSecret = trigger.params.find((o) => o.name === "secret");
+  const triggerTagPattern = trigger.params.find((o) => o.name === "tagPat");
 
   /**
    * Make sure that it is a tag created and NOT deleted

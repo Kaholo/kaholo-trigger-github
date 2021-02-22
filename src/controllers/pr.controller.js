@@ -9,7 +9,7 @@ function controller(req, res) {
     return res.send("repo not found");
   }
 
-  let repositoryURL = body.repository.clone_url; //Github HttpURL
+  let repoName = body.repository.name; //Github repository name
   let targetBranch = body.pull_request.base.ref; //Get target branch name
   let sourceBranch = body.pull_request.head.ref; //Get source branch name
   let secret = req.headers["x-hub-signature"]
@@ -18,25 +18,26 @@ function controller(req, res) {
   findTriggers(
     body,
     validateTriggerPR,
-    { repositoryURL, targetBranch, sourceBranch, secret },
+    { repoName, targetBranch, sourceBranch, secret },
     req,
-    res
+    res,
+    "webhookPR"
   );
 }
 
 async function validateTriggerPR(
   trigger,
-  { repositoryURL, targetBranch, sourceBranch, secret }
+  { repoName, targetBranch, sourceBranch, secret }
 ) {
-  const triggerRepoUrl = trigger.params.find((o) => o.name === "REPO_URL");
-  const toBranch = trigger.params.find((o) => o.name === "TO_BRANCH");
-  const fromBranch = trigger.params.find((o) => o.name === "FROM_BRANCH");
-  const triggerSecret = trigger.params.find((o) => o.name === "SECRET");
+  const triggerRepoName = trigger.params.find((o) => o.name === "repoName");
+  const toBranch = trigger.params.find((o) => o.name === "toBranch");
+  const fromBranch = trigger.params.find((o) => o.name === "fromBranch");
+  const triggerSecret = trigger.params.find((o) => o.name === "secret");
   /**
    * Check if the Repo URL is provided (else consider as ANY)
    * Check that the Repo URL is the same as provided by the Trigger and if not provided
    */
-  if (triggerRepoUrl.value && repositoryURL !== triggerRepoUrl.value) {
+  if (triggerRepoName.value && repoName !== triggerRepoName.value) {
     throw "Not same repo";
   }
 

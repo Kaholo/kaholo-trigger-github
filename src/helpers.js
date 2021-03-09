@@ -3,14 +3,14 @@ const config = require("./config");
 const mapExecutionService = require("../../../api/services/map-execution.service");
 const Trigger = require("../../../api/models/map-trigger.model");
 
-function findTriggers(body, validatationFn, startParams, req, res, method) {
+function findTriggers(validatationFn, startParams, req, res, method) {
   Trigger.find({ plugin: config.name, method: method })
     .then((triggers) => {
       console.log(`Found ${triggers.length} triggers`);
       res.send("OK");
       triggers.forEach((trigger) => {
         validatationFn(trigger, startParams)
-          .then(exec(trigger, body, req.io))
+          .then(exec(trigger, req.body, req.io))
           .catch(console.error);
       });
     })
@@ -54,7 +54,25 @@ async function verifySignature(secret, triggerSecret) {
   }
 }
 
+function getPushParams(req, res){
+  const push = req.body;
+
+  if (!push.repository) {
+    res.send("Repo not found");
+    throw "Repo not found";
+  }
+
+  const [ _temp, refType, refName ] = push.ref.split("/"); // get ref type, and tag name
+  const repoName = push.repository.name;
+  const secret = req.headers["x-hub-signature"]
+    ? req.headers["x-hub-signature"].slice(5)
+    : null;
+
+  return {refType, refName, repoName, secret};
+}
+
 module.exports = {
   findTriggers,
   verifySignature,
+  getPushParams
 };

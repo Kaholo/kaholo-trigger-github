@@ -1,28 +1,27 @@
 const minimatch = require(`minimatch`);
-const { verifySignature, findTriggers } = require(`../helpers`);
+const helper = require(`../helpers`);
 
 function controller(req, res) {
-  let body = req.body;
+  const body = req.body;
 
   if (!body.repository) {
-    console.log(`Repo not found`);
-    return res.send(`repo not found`);
+    res.send(`Repo not found`);
+    throw "Repo not found";
   }
 
-  let repoName = body.repository.name; //Github repository name
-  let targetBranch = body.pull_request.base.ref; //Get target branch name
-  let sourceBranch = body.pull_request.head.ref; //Get source branch name
-  let actionType = body.action;
-  let secret = req.headers[`x-hub-signature`]
+  const repoName = body.repository.name; //Github repository name
+  const targetBranch = body.pull_request.base.ref; //Get target branch name
+  const sourceBranch = body.pull_request.head.ref; //Get source branch name
+  const actionType = body.action;
+  const merged = body.pull_request.merged;
+  const secret = req.headers[`x-hub-signature`]
     ? req.headers[`x-hub-signature`].slice(5)
     : null;
-  let merged = body.pull_request.merged;
-  findTriggers(
-    body,
+  
+  helper.findTriggers(
     validateTriggerPR,
     { repoName, targetBranch, sourceBranch, secret, actionType, merged },
-    req,
-    res,
+    req, res,
     `webhookPR`
   );
 }
@@ -73,7 +72,7 @@ async function validateTriggerPR(trigger,{ repoName, targetBranch, sourceBranch,
   }
 
   // Verify signature
-  return verifySignature(secret, triggerSecret);
+  return helper.verifySignature(secret, triggerSecret);
 }
 
 module.exports = controller;

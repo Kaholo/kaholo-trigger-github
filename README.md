@@ -4,6 +4,7 @@ Simple webhook trigger for Kaholo
 ## How to use:
 After installing the plugin on Kaholo,
 on your GitHub repository, create a new webhook and set the URL required by each method.
+Make sure to check "application/json" in Content type.
 
 ## Git Push:
 This trigger whenever there is a push to a repository(not including tag pushes).

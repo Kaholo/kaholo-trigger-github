@@ -1,8 +1,8 @@
 const minimatch = require("minimatch");
-const { verifySignature, findTriggers, getPushParams } = require("../helpers");
+const { findTriggers } = require("../helpers");
 
 function controller(req, res) {
-  const {refType, branch, repoName, secret} = getPushParams(req, res);
+  const [_temp, refType, branchName] = req.body.ref.split("/");
 
   if (refType != "heads"){
     res.send("Not a branch push");
@@ -11,28 +11,19 @@ function controller(req, res) {
 
   findTriggers(
     validateTriggerPush,
-    { repoName, branch, secret },
+    [ branchName ],
     req, res,
     "webhookPush"
   );
 }
 
-async function validateTriggerPush(trigger, { repoName, branch, secret }) {
-  const triggerRepoName = (trigger.params.find((o) => o.name === "repoName").value || "").trim();
+function validateTriggerPush(trigger, [ branchName ]) {
   const triggerBranchPat = (trigger.params.find((o) => o.name === "branchPat").value || "").trim();
-  const triggerSecret = (trigger.params.find((o) => o.name === "secret").value || "").trim();
-  // Check that repo name matches in case it was provided. Else consider as any
-  if (triggerRepoName && repoName !== triggerRepoName) {
-    throw "Not same repo";
-  }
 
-  // Check that To branch provided. Else consider as any.
-  if (triggerBranchPat && !minimatch(branch, triggerBranchPat)) {
+  // Check that the branch provided matches the request. If not provided consider as any.
+  if (triggerBranchPat && !minimatch(branchName, triggerBranchPat)) {
     throw "Not matching pushed branch";
   }
-
-  // Verify the signature
-  return verifySignature(secret, triggerSecret);
 }
 
 module.exports = controller;

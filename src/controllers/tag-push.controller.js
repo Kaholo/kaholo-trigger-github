@@ -1,9 +1,9 @@
-  const minimatch = require("minimatch");
-const { verifySignature, findTriggers, getPushParams } = require("../helpers");
+const minimatch = require("minimatch");
+const { findTriggers } = require("../helpers");
 
 
 function controller(req, res) {
-  const {refType, tagName, repoName, secret} = getPushParams(req, res);
+  const [_temp, refType, tagName] = req.body.ref.split("/");
   
   if (refType != "tags"){
     res.send("Not a tag push");
@@ -17,28 +17,19 @@ function controller(req, res) {
 
   findTriggers(
     validatePT,
-    { tagName, repoName, secret },
+    { tagName },
     req, res,
     "webhookPushTag"
   );
 }
 
-async function validatePT(trigger, { tagName, repoName, secret }) {
-  const triggerRepoName = (trigger.params.find((o) => o.name === "repoName").value || "").trim();
-  const triggerSecret = (trigger.params.find((o) => o.name === "secret").value || "").trim();
+function validatePT(trigger, { tagName }) {
   const triggerTagPattern = (trigger.params.find((o) => o.name === "tagPat").value || "").trim();
 
-  // Check if the Repo Name is provided (else consider as ANY)
-  if (triggerRepoName && triggerRepoName !== repoName) {
-    throw "Repo do not match";
-  }
   // check that tag name matches in case it was provided. Else consider as any.
   if (triggerTagPattern && !minimatch(tagName, triggerTagPattern)) {
     throw "Tag do not match";
   }
-
-  // Verify signature
-  return verifySignature(secret, triggerSecret);
 }
 
 module.exports = controller;

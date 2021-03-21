@@ -3,7 +3,7 @@ const config = require("./config");
 const mapExecutionService = require("../../../api/services/map-execution.service");
 const Trigger = require("../../../api/models/map-trigger.model");
 
-function findTriggers(validatationFn, startParams, req, res, method) {7
+function findTriggers(validatationFn, startParams, req, res, method, description) {
   // Get Data that is the same for all github webhook payloads
   const body = req.body;
   if (!body.repository) {
@@ -25,7 +25,7 @@ function findTriggers(validatationFn, startParams, req, res, method) {7
           verifyRepoName(trigger, repoName);
           verifySignature(trigger, secret, body);
           validatationFn(trigger, startParams);
-          exec(trigger, body, req.io);
+          exec(trigger, body, req.io, description);
         }
         catch (err){
           console.error(err);
@@ -35,9 +35,9 @@ function findTriggers(validatationFn, startParams, req, res, method) {7
     .catch((error) => res.send(error));
 }
 
-function exec(trigger, body, io) {
+function exec(trigger, body, io, description) {
   console.log(trigger.map);
-  let message = trigger.name + " - Started by Github trigger";
+  const message = `${trigger.name} - ${description}`;
   console.log(`******** Github: executing map ${trigger.map} ********`);
   mapExecutionService.execute(
     trigger.map,

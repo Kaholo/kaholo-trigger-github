@@ -13,7 +13,7 @@ function controller(req, res) {
     actionType = merged ? "merged" : "declined";
   }
   
-findTriggers(
+  findTriggers(
     validateTriggerPR,
     [ targetBranch, sourceBranch, actionType ],
     req, res,

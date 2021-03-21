@@ -4,7 +4,7 @@
   "execProgram": "node",
   "main": "app.js",
   "imgUrl": "logo.png",
-  "version": "1.5.1",
+  "version": "2.0.2",
   "description": "Handles Github webhooks",
   "methods": [
     {
@@ -15,6 +15,11 @@
         {
           "name": "secret",
           "viewName": "Secret",
+          "type": "vault"
+        },
+        {
+          "name": "repoName",
+          "viewName": "Repo Name",
           "type": "string"
         },
         {
@@ -23,8 +28,8 @@
           "type": "string"
         },
         {
-          "name": "repoName",
-          "viewName": "Repo Name",
+          "name": "tagPat",
+          "viewName": "Tag Pattern",
           "type": "string"
         }
       ]
@@ -37,6 +42,11 @@
         {
           "name": "secret",
           "viewName": "Webhook secret",
+          "type": "vault"
+        },
+        {
+          "name": "repoName",
+          "viewName": "Repo Name",
           "type": "string"
         },
         {
@@ -47,11 +57,6 @@
         {
           "name": "fromBranch",
           "viewName": "Source branch",
-          "type": "string"
-        },
-        {
-          "name": "repoName",
-          "viewName": "Repo Name",
           "type": "string"
         },
         {
@@ -76,28 +81,6 @@
               "name": "Declined"
             }
           ]
-        }
-      ]
-    },
-    {
-      "name": "webhookPushTag",
-      "route": "post /webhook/github/pt",
-      "viewName" : "Github Push tag",
-      "params": [
-        {
-          "name": "secret",
-          "viewName": "Webhook secret",
-          "type": "string"
-        },
-        {
-          "name": "repoName",
-          "viewName": "Repo Name",
-          "type": "string"
-        },
-        {
-          "name": "tagPat",
-          "viewName": "Tag Pattern",
-          "type": "string"
         }
       ]
     }

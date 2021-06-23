@@ -13,7 +13,7 @@ This trigger whenever there is a push to a repository. This can mean either a br
 **{KAHOLO_URL}/webhook/github/push**
 
 ### Parameters:
-1. Secret(vault) - Github webhook secret key.
+1. Secret(string) - Github webhook secret key.
 2. Repo Name(string) - The repository Name (if not specified, then all repositories are accepted)
 3. Branch Pattern(string) - The branch or branch [minimatch pattern](https://github.com/isaacs/minimatch#readme) to filter. **If not specified branch push won't trigger**
 4. Tag Pattern(string) - The tag or tag [minimatch pattern](https://github.com/isaacs/minimatch#readme) to filter. **If not specified tag push won't trigger**
@@ -28,7 +28,7 @@ This trigger whenever there is an action performed on a pull request.
 **{KAHOLO_URL}/webhook/github/pr**
 
 ### Parameters:
-1. Secret(vault) - Github webhook secret key
+1. Secret(string) - Github webhook secret key
 2. Repo Name(string) - The repository Name (if not specified, then all repositories are accepted)
 3. Target Branch(string) - The target branch or target branch [minimatch pattern](https://github.com/isaacs/minimatch#readme) (if not specified, then any target branch is accepted)
 4. Source Branch(string) - The source branch or source branch [minimatch pattern](https://github.com/isaacs/minimatch#readme) (if not specified, then any source branch is accepted)

@@ -17,20 +17,15 @@ async function webhookPush(req, res, settings, triggerControllers) {
         const reqRepoName = body.repository.name; //Github repository name
         const reqSecret = req.headers["x-hub-signature-256"];
         const paramName = `${pushType}Pat`;
-        let logMsg = "";
-    
+
         triggerControllers.forEach((trigger) => {
-            logMsg += "\n" + trigger.name;
             if (!verifyRepoName(trigger, reqRepoName) || !verifySignature(trigger, reqSecret, body)) return;
-            logMsg += " validated normal."
             const validateParam = trigger.params[paramName];
             if (!validateParam || !minimatch(pushName, validateParam)) return;
-            logMsg += " validated special."
             const msg = `${reqRepoName} ${pushType} Push`;
             trigger.execute(msg, body);
-            logMsg += " triggered."
         });
-        res.status(200).send(logMsg);
+        res.status(200).send("OK");
     }
     catch (err){
         res.status(422).send(err.toString());

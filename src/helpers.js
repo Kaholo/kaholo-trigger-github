@@ -8,11 +8,9 @@ function verifyRepoName(trigger, repoName){
 
 function verifySignature(trigger, secret, body) {
   const triggerSecret = (trigger.params.secret || "").trim();
-  if (!triggerSecret){
-    return !secret;
-  }
+  if (!triggerSecret) return true;
   const hash = crypto.createHmac("sha256", triggerSecret).update(JSON.stringify(body)).digest("hex");
-  return hash === secret; 
+  return hash === secret.substring(7);  // secret="sha256=<secret>"
 }
 
 module.exports = {

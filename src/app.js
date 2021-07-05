@@ -2,9 +2,6 @@ const { verifyRepoName, verifySignature } = require("./helpers");
 const minimatch = require("minimatch")
 
 async function webhookPush(req, res, settings, triggerControllers) {
-    if (!triggerControllers) {
-        return res.status(400).send("triggers cannot be nil");
-    }
     try {
         const body = req.body;
         const [_temp, refType, pushName] = req.body.ref.split("/");
@@ -33,9 +30,6 @@ async function webhookPush(req, res, settings, triggerControllers) {
 }
 
 async function webhookPR(req, res, settings, triggerControllers) {
-    if (!triggerControllers) {
-        return res.status(400).send("triggers cannot be nil");
-    }
     try {
         const body = req.body;
         const reqRepoName = body.repository.name; //Github repository name

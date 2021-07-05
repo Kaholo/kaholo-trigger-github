@@ -4,7 +4,7 @@
   "execProgram": "node",
   "main": "app.js",
   "imgUrl": "logo.png",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Handles Github webhooks",
   "methods": [
     {
@@ -15,7 +15,7 @@
         {
           "name": "secret",
           "viewName": "Secret",
-          "type": "string"
+          "type": "vault"
         },
         {
           "name": "repoName",
@@ -42,7 +42,7 @@
         {
           "name": "secret",
           "viewName": "Webhook secret",
-          "type": "string"
+          "type": "vault"
         },
         {
           "name": "repoName",

@@ -1,9 +1,9 @@
 const crypto = require("crypto");
-const minimatch = require("minimatch")
+const micromatch = require("micromatch");
 
 function verifyRepoName(trigger, repoName){
-  const triggerRepoName = (trigger.params.repoName || "").trim();
-  return !triggerRepoName || minimatch(repoName, triggerRepoName);
+  const repoNamePattern = (trigger.params.repoName || "").trim();
+  return isMatch(repoName, repoNamePattern);
 }
 
 function verifySignature(trigger, secret, body) {
@@ -13,7 +13,12 @@ function verifySignature(trigger, secret, body) {
   return hash === secret.substring(7);  // secret="sha256=<secret>"
 }
 
+function isMatch(value, pattern){
+  return !pattern || micromatch.isMatch(value, pattern);
+}
+
 module.exports = {
   verifyRepoName,
-  verifySignature
+  verifySignature,
+  isMatch
 };

@@ -1,14 +1,15 @@
-const { verifyRepoName, verifySignature } = require("./helpers");
-const minimatch = require("minimatch")
+const { verifyRepoName, verifySignature, isMatch } = require("./helpers");
 
 async function webhookPush(req, res, settings, triggerControllers) {
     try {
         const body = req.body;
-        const [_temp, refType, pushName] = req.body.ref.split("/");
-        // get the push type from ref type
-        const pushType = refType === "heads" ?  "branch" : 
-                            refType === "tags"  ?  "tag"    : "";
-        if (pushType === "") {
+        let [_temp, pushType, ...pushName] = req.body.ref.split("/");
+        // fix push name in case it contains /
+        if (Array.isArray(pushName)) pushName = pushName.join("/");
+        // get the push type
+        if (pushType === "heads") pushType = "branch";
+        else if (pushType === "tags") pushType = "tag";
+        else {
             return res.status(400).send("Bad Push Type");
         }
         const reqRepoName = body.repository.name; //Github repository name
@@ -17,9 +18,11 @@ async function webhookPush(req, res, settings, triggerControllers) {
 
         triggerControllers.forEach((trigger) => {
             if (!verifyRepoName(trigger, reqRepoName) || !verifySignature(trigger, reqSecret, body)) return;
-            const validateParam = trigger.params[paramName];
-            if (!validateParam || !minimatch(pushName, validateParam)) return;
-            const msg = `${reqRepoName} ${pushType} Push`;
+            if (trigger.params.tagPat || trigger.params.branchPat){ // If both weren't provided, don't filter by push name
+                const validateParam = trigger.params[paramName];
+                if (!validateParam || !isMatch(pushName, validateParam)) return;
+            }
+            const msg = `Github ${reqRepoName} ${pushName} ${pushType} Push`;
             trigger.execute(msg, body);
         });
         res.status(200).send("OK");
@@ -42,12 +45,12 @@ async function webhookPR(req, res, settings, triggerControllers) {
         triggerControllers.forEach((trigger) => {
             if (!verifyRepoName(trigger, reqRepoName) || !verifySignature(trigger, reqSecret, body)) return;
             const {toBranch, fromBranch, actionType} = trigger.params;
-            if (toBranch && !minimatch(reqTargetBranch, toBranch)) return;
+            if (!isMatch(reqTargetBranch, toBranch)) return;
             // Check that From branch provided is same as request. If not provided consider as any.
-            if (fromBranch && !minimatch(reqSourceBranch, fromBranch)) return;
+            if (!isMatch(reqSourceBranch, fromBranch)) return;
             // Check that action type provided is same as request. If not provided consider as any.
             if (actionType && actionType !== "any" && triggerActionType !== reqActionType) return;
-            const msg = `${reqRepoName} ${reqSourceBranch}->${reqTargetBranch} PR ${reqActionType}`
+            const msg = `Github ${reqRepoName} ${reqSourceBranch}->${reqTargetBranch} PR ${reqActionType}`
             trigger.execute(msg, body);
         });
         res.status(200).send("OK");

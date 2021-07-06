@@ -1,6 +1,6 @@
 {
   "name": "kaholo-trigger-github",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "",
   "main": "app.js",
   "scripts": {
@@ -8,6 +8,6 @@
   },
   "license": "ISC",
   "dependencies": {
-    "minimatch": "^3.0.4"
+    "micromatch": "^4.0.4"
   }
 }

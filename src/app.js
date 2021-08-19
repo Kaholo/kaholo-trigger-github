@@ -3,7 +3,11 @@ const { verifyRepoName, verifySignature, isMatch } = require("./helpers");
 async function webhookPush(req, res, settings, triggerControllers) {
     try {
         const body = req.body;
-        let [_temp, pushType, ...pushName] = req.body.ref.split("/");
+        if (!body.ref && body.hook){
+            // first request
+            return res.status(200).send("OK");
+        }
+        let [_temp, pushType, ...pushName] = body.ref.split("/");
         // fix push name in case it contains /
         if (Array.isArray(pushName)) pushName = pushName.join("/");
         // get the push type
@@ -35,6 +39,10 @@ async function webhookPush(req, res, settings, triggerControllers) {
 async function webhookPR(req, res, settings, triggerControllers) {
     try {
         const body = req.body;
+        if (!body.pull_request && body.hook){
+            // first request
+            return res.status(200).send("OK");
+        }
         const reqRepoName = body.repository.name; //Github repository name
         const reqSecret = req.headers["x-hub-signature-256"]
         const reqTargetBranch = body.pull_request.base.ref; //Get target branch name

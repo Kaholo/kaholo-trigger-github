@@ -4,7 +4,7 @@
   "execProgram": "node",
   "main": "app.js",
   "imgUrl": "logo.png",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "description": "Handles Github webhooks",
   "methods": [
     {
@@ -79,6 +79,38 @@
             {
               "id": "declined",
               "name": "Declined"
+            },
+            {
+              "id": "reopened",
+              "name": "Reopened"
+            },
+            {
+              "id": "assigned",
+              "name": "Assigned"
+            },
+            {
+              "id": "unassigned",
+              "name": "Unassigned"
+            },
+            {
+              "id": "review_requested",
+              "name": "Review Requested"
+            },
+            {
+              "id": "review_request_removed",
+              "name": "Review Request Removed"
+            },
+            {
+              "id": "labeled",
+              "name": "Labeled"
+            },
+            {
+              "id": "unlabeled",
+              "name": "Unlabeled"
+            },
+            {
+              "id": "synchronize",
+              "name": "Synchronize"
             }
           ]
         }

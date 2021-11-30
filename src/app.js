@@ -57,7 +57,7 @@ async function webhookPR(req, res, settings, triggerControllers) {
             // Check that From branch provided is same as request. If not provided consider as any.
             if (!isMatch(reqSourceBranch, fromBranch)) return;
             // Check that action type provided is same as request. If not provided consider as any.
-            if (actionType && actionType !== "any" && triggerActionType !== reqActionType) return;
+            if (actionType && actionType !== "any" && actionType !== reqActionType) return;
             const msg = `Github ${reqRepoName} ${reqSourceBranch}->${reqTargetBranch} PR ${reqActionType}`
             trigger.execute(msg, body);
         });

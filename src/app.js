@@ -2,7 +2,9 @@ const { verifyRepoName, verifySignature, isMatch } = require("./helpers");
 
 async function webhookPush(req, res, settings, triggerControllers) {
     try {
-        const body = req.body;
+        //check whether the body is in JSON format and assign to the constant, if no parse it from payload
+        const body = req.headers["content-type"] === "application/json" ? req.body : JSON.parse(req.body.payload);
+
         if (!body.ref && body.hook){
             // first request
             return res.status(200).send("OK");

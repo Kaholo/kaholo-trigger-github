@@ -4,7 +4,7 @@
   "execProgram": "node",
   "main": "app.js",
   "imgUrl": "logo.png",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "description": "Handles Github webhooks",
   "methods": [
     {

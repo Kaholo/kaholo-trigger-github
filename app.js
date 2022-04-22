@@ -1,4 +1,4 @@
-const { verifyRepoName, verifySignature, matches } = require("./helpers");
+const { verifySignature, matches } = require("./helpers");
 
 function extractData(req) {
   let rawData = null;
@@ -54,12 +54,10 @@ async function webhookPush(req, res, settings, triggerControllers) {
 
     const repositoryName = data.repository.name;
     const requestsSecret = req.headers["x-hub-signature-256"];
+    const msg = `Github ${repositoryName} ${pushInfo.name} ${pushInfo.type} Push`;
     triggerControllers.forEach((trigger) => {
-      if (!verifyRepoName(trigger, repositoryName)) {
-        return;
-      }
-
-      if (!verifySignature(trigger, requestsSecret, rawData)) {
+      // trigger.params.repoName - the pattern
+      if (!matches(repositoryName, trigger.params.repoName)) {
         return;
       }
 
@@ -74,7 +72,10 @@ async function webhookPush(req, res, settings, triggerControllers) {
         return;
       }
 
-      const msg = `Github ${repositoryName} ${pushInfo.name} ${pushInfo.type} Push`;
+      if (!verifySignature(trigger, requestsSecret, rawData)) {
+        return;
+      }
+
       trigger.execute(msg, data);
     });
 
@@ -89,6 +90,32 @@ function isInitialPRRequest(data) {
   return !data.pull_request && data.hook;
 };
 
+function isPRRequestValid(triggerParams, requestParams, rawData) {
+  if (!matches(requestParams.repositoryName, triggerParams.repositoryNamePattern)) {
+    return false;
+  }
+
+  if (!matches(requestParams.toBranch, triggerParams.toBranch)) {
+    return false;
+  }
+
+  if (!matches(requestParams.fromBranch, triggerParams.fromBranch)) {
+    return false;
+  }
+
+  if (triggerParams.actionType
+    && triggerParams.actionType !== "any"
+    && triggerParams.actionType !== requestParams.actionType) {
+    return false;
+  }
+
+  if (!verifySignature(triggerParams.secret, requestParams.secret, rawData)) {
+    return false;
+  }
+
+  return true;
+}
+
 async function webhookPR(req, res, settings, triggerControllers) {
   try {
     const [rawData, data] = extractData(req);
@@ -97,37 +124,31 @@ async function webhookPR(req, res, settings, triggerControllers) {
         return res.status(200).send("OK");
     }
 
-
-    const reqTargetBranch = data.pull_request.base.ref;
-    const reqSourceBranch = data.pull_request.head.ref;
-    const merged = data.pull_request.merged;
-    const reqActionType =  data.action === "closed" ? (merged ? "merged" : "declined") : data.action;
-
     const repositoryName = data.repository.name;
     const requestsSecret = req.headers["x-hub-signature-256"];
+    const requestParams = {
+      repositoryName,
+      secret: requestsSecret,
+      toBranch: data.pull_request.base.ref,
+      fromBranch: data.pull_request.head.ref,
+      actionType: data.action === "closed" ? (data.pull_request.merged ? "merged" : "declined") : data.action,
+    };
+
+    const msg = `Github ${repositoryName} ${requestParams.fromBranch}->${requestParams.toBranch} PR ${requestParams.actionType}`
+
     triggerControllers.forEach((trigger) => {
-      if (!verifyRepoName(trigger, repositoryName)) {
+      const triggerParams = {
+        repositoryNamePattern: trigger.params.repoName,
+        secret: trigger.params.secret,
+        toBranch: trigger.params.toBranch,
+        fromBranch: trigger.params.fromBranch,
+        actionType: trigger.params.actionType,
+      };
+
+      if (!isPRRequestValid(triggerParams, requestParams, rawData)) {
         return;
       }
 
-      if (!verifySignature(trigger, requestsSecret, rawData)) {
-        return;
-      }
-
-      const { toBranch, fromBranch, actionType } = trigger.params;
-      if (!matches(reqTargetBranch, toBranch)) {
-        return;
-      }
-
-      if (!matches(reqSourceBranch, fromBranch)) {
-        return;
-      }
-
-      if (actionType && actionType !== "any" && actionType !== reqActionType) {
-        return;
-      }
-
-      const msg = `Github ${repositoryName} ${reqSourceBranch}->${reqTargetBranch} PR ${reqActionType}`
       trigger.execute(msg, data);
     });
 

@@ -88,9 +88,31 @@ async function webhookPush(req, res, settings, triggerControllers) {
 
 function isInitialPRRequest(data) {
   return !data.pull_request && data.hook;
-};
+}
 
-function isPRRequestValid(triggerParams, requestParams, rawData) {
+function extractPRRequestParams(data) {
+  return {
+    repositoryName: data.repository.name,
+    secret: req.headers["x-hub-signature-256"],
+    toBranch: data.pull_request.base.ref,
+    fromBranch: data.pull_request.head.ref,
+    actionType: data.action === "closed"
+      ? (data.pull_request.merged ? "merged" : "declined")
+      : data.action,
+  };
+}
+
+function extractTriggerParams(trigger) {
+  return {
+    repositoryNamePattern: trigger.params.repoName,
+    secret: trigger.params.secret,
+    toBranch: trigger.params.toBranch,
+    fromBranch: trigger.params.fromBranch,
+    actionType: trigger.params.actionType,
+  };
+}
+
+function PRRequestSatisfiesTriggerConditions(triggerParams, requestParams, rawData) {
   if (!matches(requestParams.repositoryName, triggerParams.repositoryNamePattern)) {
     return false;
   }
@@ -124,32 +146,19 @@ async function webhookPR(req, res, settings, triggerControllers) {
         return res.status(200).send("OK");
     }
 
-    const repositoryName = data.repository.name;
-    const requestsSecret = req.headers["x-hub-signature-256"];
-    const requestParams = {
-      repositoryName,
-      secret: requestsSecret,
-      toBranch: data.pull_request.base.ref,
-      fromBranch: data.pull_request.head.ref,
-      actionType: data.action === "closed" ? (data.pull_request.merged ? "merged" : "declined") : data.action,
-    };
-
-    const msg = `Github ${repositoryName} ${requestParams.fromBranch}->${requestParams.toBranch} PR ${requestParams.actionType}`
+    const requestParams = extractPRRequestParams(data);
+    const executionMessage = `\
+Github ${requestParams.repositoryName} \
+${requestParams.fromBranch}->${requestParams.toBranch} \
+PR ${requestParams.actionType}`;
 
     triggerControllers.forEach((trigger) => {
-      const triggerParams = {
-        repositoryNamePattern: trigger.params.repoName,
-        secret: trigger.params.secret,
-        toBranch: trigger.params.toBranch,
-        fromBranch: trigger.params.fromBranch,
-        actionType: trigger.params.actionType,
-      };
-
-      if (!isPRRequestValid(triggerParams, requestParams, rawData)) {
+      const triggerParams = extractTriggerParams(trigger);
+      if (!PRRequestSatisfiesTriggerConditions(triggerParams, requestParams, rawData)) {
         return;
       }
 
-      trigger.execute(msg, data);
+      trigger.execute(executionMessage, data);
     });
 
     res.status(200).send("OK");

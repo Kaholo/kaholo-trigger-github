@@ -1,4 +1,4 @@
-const { verifySignature, matches } = require("./helpers");
+const Push = require("./push");
 const PullRequest = require("./pullRequest");
 
 function extractData(req) {
@@ -22,24 +22,6 @@ function isInitialPushRequest(data) {
   return !data.ref && data.hook;
 };
 
-function getPushInfo(data) {
-  const pushInfo = {};
-
-  let [, pushType, ...pushName] = data.ref.split("/");
-
-  pushInfo.name = Array.isArray(pushName) ? pushName.join("/") : pushName;
-  switch(pushType) {
-    case "heads":
-      pushInfo.type = "branch";
-    case "tags":
-      pushInfo.type = "tag";
-    default:
-      return null;
-  }
-
-  return pushInfo;
-}
-
 async function webhookPush(req, res, settings, triggerControllers) {
   try {
     const [rawData, data] = extractData(req);
@@ -48,36 +30,26 @@ async function webhookPush(req, res, settings, triggerControllers) {
         return res.status(200).send("OK");
     }
 
-    const pushInfo = getPushInfo(data);
-    if (!pushInfo) {
-      return res.status(400).send("Bad Push Type");
+    let requestParams = null;
+    try {
+      requestParams = Push.extractRequestParams(req, data);
+    } catch (error) {
+      return res.status(400).send(error.message);
     }
 
-    const repositoryName = data.repository.name;
-    const requestsSecret = req.headers["x-hub-signature-256"];
-    const msg = `Github ${repositoryName} ${pushInfo.name} ${pushInfo.type} Push`;
+    const executionMessage = `\
+Github ${requestParams.repositoryName} \
+${requestParams.pushName} \
+${requestParams.pushType} Push`;
+
     triggerControllers.forEach((trigger) => {
-      // trigger.params.repoName - the pattern
-      if (!matches(repositoryName, trigger.params.repoName)) {
+      const triggerParams = Push.extractTriggerParams(trigger);
+
+      if (!Push.requestSatisfiesTriggerConditions(triggerParams, requestParams, rawData)) {
         return;
       }
 
-      // Pat means pattern :|
-      if (pushInfo.type === "branch" && !matches(pushInfo.name, trigger.params.branchPat)) {
-        return;
-      }
-
-      // Pat means pattern :|
-      if (pushInfo.type === "tag" && !matches(pushInfo.name, trigger.params.tagPat
-        && trigger.params.branchPat)) {
-        return;
-      }
-
-      if (!verifySignature(trigger, requestsSecret, rawData)) {
-        return;
-      }
-
-      trigger.execute(msg, data);
+      trigger.execute(executionMessage, data);
     });
 
     return res.status(200).send("OK");
@@ -86,7 +58,6 @@ async function webhookPush(req, res, settings, triggerControllers) {
     res.status(422).send(err.toString());
   }
 }
-
 
 async function webhookPR(req, res, settings, triggerControllers) {
   try {
@@ -104,6 +75,7 @@ PR ${requestParams.actionType}`;
 
     triggerControllers.forEach((trigger) => {
       const triggerParams = PullRequest.extractTriggerParams(trigger);
+
       if (!PullRequest.requestSatisfiesTriggerConditions(triggerParams, requestParams, rawData)) {
         return;
       }

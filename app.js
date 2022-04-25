@@ -8,9 +8,11 @@ function extractData(req) {
     case "application/json":
       rawData = req.body;
       data = req.body;
+      break;
     case "application/x-www-form-urlencoded":
       rawData = req.body.payload;
       data = JSON.parse(req.body.payload);
+      break;
     default:
       throw new Error(`Unsupported 'content-type' header. Received: ${req.headers["content-type"]}`);
   }
@@ -18,15 +20,11 @@ function extractData(req) {
   return [rawData, data];
 }
 
-function isInitialPushRequest(data) {
-  return !data.ref && data.hook;
-};
-
 async function webhookPush(req, res, settings, triggerControllers) {
   try {
     const [rawData, data] = extractData(req);
 
-    if (isInitialPushRequest(data)){
+    if (Push.isInitialRequest(data)){
         return res.status(200).send("OK");
     }
 
@@ -54,8 +52,8 @@ ${requestParams.pushType} Push`;
 
     return res.status(200).send("OK");
   }
-  catch (err){
-    res.status(422).send(err.toString());
+  catch (error){
+    res.status(422).send(error.toString());
   }
 }
 
@@ -85,8 +83,8 @@ PR ${requestParams.actionType}`;
 
     res.status(200).send("OK");
   }
-  catch (err){
-    res.status(422).send(err.message);
+  catch (error){
+    res.status(422).send(error.message);
   }
 }
 

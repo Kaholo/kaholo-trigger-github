@@ -18,11 +18,11 @@ function verifySignature(triggersSecret, requestsSecret, body) {
   return hash === requestsSecret.substring(7);
 }
 
-function matches(value, pattern){
+function matches(value, pattern) {
   return !pattern || micromatch.isMatch(value, pattern);
 }
 
 module.exports = {
   verifySignature,
-  matches
+  matches,
 };

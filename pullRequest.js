@@ -5,14 +5,21 @@ function isInitialRequest(data) {
 }
 
 function extractRequestParams(req, data) {
+  let actionType;
+  if (data.action === "closed") {
+    actionType = data.pull_request.merged
+      ? "merged"
+      : "declined";
+  } else {
+    actionType = data.action;
+  }
+
   return {
     repositoryName: data.repository.name,
     secret: req.headers["x-hub-signature-256"],
     toBranch: data.pull_request.base.ref,
     fromBranch: data.pull_request.head.ref,
-    actionType: data.action === "closed"
-      ? (data.pull_request.merged ? "merged" : "declined")
-      : data.action,
+    actionType,
   };
 }
 

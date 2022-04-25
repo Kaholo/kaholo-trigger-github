@@ -1,6 +1,6 @@
 const {
   matches,
-  verifySignature
+  verifySignature,
 } = require("./helpers");
 
 function isInitialRequest(data) {
@@ -8,12 +8,12 @@ function isInitialRequest(data) {
 }
 
 function extractRequestParams(req, data) {
-  let [, pushTypeInfo, ...pushNameInfo] = data.ref.split("/");
-  const [ , , branchName ] = data.base_ref.split("/");
+  const [, pushTypeInfo, ...pushNameInfo] = data.ref.split("/");
+  const [, , branchName] = data.base_ref.split("/");
 
   const pushName = Array.isArray(pushNameInfo) ? pushNameInfo.join("/") : pushNameInfo;
   let pushType = null;
-  switch(pushTypeInfo) {
+  switch (pushTypeInfo) {
     case "heads":
       pushType = "branch";
       break;
@@ -30,7 +30,7 @@ function extractRequestParams(req, data) {
     pushType,
     branchName,
     secret: req.headers["x-hub-signature-256"],
-  }
+  };
 }
 
 function extractTriggerParams(trigger) {
@@ -39,7 +39,7 @@ function extractTriggerParams(trigger) {
     branchNamePattern: trigger.params.branchPat,
     tagNamePattern: trigger.params.tagPat,
     secret: trigger.params.secret,
-  }
+  };
 }
 
 function requestSatisfiesTriggerConditions(triggerParams, requestParams, rawData) {

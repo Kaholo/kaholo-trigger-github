@@ -4,7 +4,7 @@ const PullRequest = require("./pullRequest");
 function extractData(req) {
   let rawData = null;
   let data = null;
-  switch(req.headers["content-type"]) {
+  switch (req.headers["content-type"]) {
     case "application/json":
       rawData = req.body;
       data = req.body;
@@ -24,8 +24,8 @@ async function webhookPush(req, res, settings, triggerControllers) {
   try {
     const [rawData, data] = extractData(req);
 
-    if (Push.isInitialRequest(data)){
-        return res.status(200).send("OK");
+    if (Push.isInitialRequest(data)) {
+      return res.status(200).send("OK");
     }
 
     let requestParams = null;
@@ -51,18 +51,19 @@ ${requestParams.pushType} Push`;
     });
 
     return res.status(200).send("OK");
-  }
-  catch (error){
+  } catch (error) {
     res.status(422).send(error.toString());
   }
+
+  return Promise.resolve();
 }
 
 async function webhookPR(req, res, settings, triggerControllers) {
   try {
     const [rawData, data] = extractData(req);
 
-    if (PullRequest.isInitialRequest(data)){
-        return res.status(200).send("OK");
+    if (PullRequest.isInitialRequest(data)) {
+      return res.status(200).send("OK");
     }
 
     const requestParams = PullRequest.extractRequestParams(req, data);
@@ -82,13 +83,14 @@ PR ${requestParams.actionType}`;
     });
 
     res.status(200).send("OK");
-  }
-  catch (error){
+  } catch (error) {
     res.status(422).send(error.message);
   }
+
+  return Promise.resolve();
 }
 
 module.exports = {
-    webhookPush,
-    webhookPR
-}
+  webhookPush,
+  webhookPR,
+};

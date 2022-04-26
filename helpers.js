@@ -11,7 +11,9 @@ function verifySignature(triggersSecret, requestsSecret, body) {
   }
 
   const hash = crypto.createHmac("sha256", triggersSecret)
-    .update(JSON.stringify(body))
+    .update(typeof body === "string"
+      ? body
+      : JSON.stringify(body))
     .digest("hex");
 
   // strip "sha256=" off the beginning

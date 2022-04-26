@@ -9,16 +9,18 @@ function isInitialRequest(data) {
 
 function extractRequestParams(req, data) {
   const [, pushTypeInfo, ...pushNameInfo] = data.ref.split("/");
-  const [, , branchName] = data.base_ref.split("/");
 
   const pushName = Array.isArray(pushNameInfo) ? pushNameInfo.join("/") : pushNameInfo;
   let pushType = null;
+  let branchName = null;
   switch (pushTypeInfo) {
     case "heads":
       pushType = "branch";
+      branchName = pushName;
       break;
     case "tags":
       pushType = "tag";
+      [, , branchName] = data.base_ref.split("/");
       break;
     default:
       throw new Error("Bad Push Type");

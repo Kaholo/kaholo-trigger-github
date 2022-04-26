@@ -10,7 +10,7 @@ function extractData(req) {
       data = req.body;
       break;
     case "application/x-www-form-urlencoded":
-      rawData = req.body.payload;
+      rawData = req.rawBody;
       data = JSON.parse(req.body.payload);
       break;
     default:

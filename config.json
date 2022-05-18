@@ -1,68 +1,84 @@
 {
   "name": "Github-Trigger",
+  "viewName": "GitHub Trigger",
   "type": "trigger",
   "execProgram": "node",
   "main": "app.js",
   "imgUrl": "logo.png",
-  "version": "2.2.4",
-  "description": "Handles Github webhooks",
+  "version": "2.2.5",
+  "description": "Listens for and handles incoming GitHub webhooks",
   "methods": [
     {
       "name": "webhookPush",
       "route": "post /webhook/github/push",
-      "viewName": "Github Push",
+      "viewName": "GitHub Push",
       "params": [
         {
           "name": "secret",
-          "viewName": "Secret",
-          "type": "vault"
+          "viewName": "Webhook Secret",
+          "type": "vault",
+          "description": "A secret string - must match the secret in the GitHub Webhook configuration"
         },
         {
           "name": "repoName",
-          "viewName": "Repo Name",
-          "type": "string"
+          "viewName": "Repository Name",
+          "type": "string",
+          "description": "A specific repository name or empty to match any repository.",
+          "placeholder": "kaholo-trigger-github"
         },
         {
           "name": "branchPat",
           "viewName": "Branch Pattern",
-          "type": "string"
+          "type": "string",
+          "description": "A GitHub micromatch pattern, empty to match every branch.",
+          "placeholder": "*-RC*"
         },
         {
           "name": "tagPat",
           "viewName": "Tag Pattern",
-          "type": "string"
+          "type": "string",
+          "description": "A GitHub micromatch pattern, empty to match every tag.",
+          "placeholder": "v2.*"
         }
       ]
     },
     {
       "name": "webhookPR",
       "route": "post /webhook/github/pr",
-      "viewName": "Github pull request",
+      "viewName": "GitHub Pull Request",
       "params": [
         {
           "name": "secret",
-          "viewName": "Webhook secret",
-          "type": "vault"
+          "viewName": "Webhook Secret",
+          "type": "vault",
+          "description": "A secret string - must match the secret in the GitHub Webhook configuration"
         },
         {
           "name": "repoName",
-          "viewName": "Repo Name",
-          "type": "string"
+          "viewName": "Repository Name",
+          "type": "string",
+          "description": "A specific repository name or empty to match any repository.",
+          "placeholder": "kaholo-trigger-github"
         },
         {
           "name": "toBranch",
-          "viewName": "Target branch",
-          "type": "string"
+          "viewName": "Target Branch",
+          "type": "string",
+          "description": "A GitHub micromatch pattern, empty to match every branch.",
+          "placeholder": "main"
         },
         {
           "name": "fromBranch",
-          "viewName": "Source branch",
-          "type": "string"
+          "viewName": "Source Branch",
+          "type": "string",
+          "description": "A GitHub micromatch pattern, empty to match every branch.",
+          "placeholder": "task*"
         },
         {
           "name": "actionType",
-          "viewName": "Trigger on action",
+          "viewName": "Trigger on Action",
           "type": "options",
+          "description": "Action type on which to trigger, or \"Any\" for all actions.",
           "options": [
             {
               "id": "any",

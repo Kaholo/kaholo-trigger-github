@@ -131,6 +131,26 @@
           ]
         }
       ]
+    },
+    {
+      "name": "webhookRelease",
+      "route": "post /webhook/github/release",
+      "viewName": "GitHub Release",
+      "params": [
+        {
+          "name": "secret",
+          "viewName": "Webhook Secret",
+          "type": "vault",
+          "description": "A secret string - must match the secret in the GitHub Webhook configuration"
+        },
+        {
+          "name": "repoName",
+          "viewName": "Repository Name",
+          "type": "string",
+          "description": "A specific repository name or empty to match any repository.",
+          "placeholder": "kaholo-trigger-github"
+        }
+      ]
     }
   ]
 }

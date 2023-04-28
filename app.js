@@ -1,24 +1,10 @@
 const Push = require("./push");
 const PullRequest = require("./pullRequest");
 
-function extractData(req) {
-  let rawData = null;
-  let data = null;
-  switch (req.headers["content-type"]) {
-    case "application/json":
-      rawData = req.body;
-      data = req.body;
-      break;
-    case "application/x-www-form-urlencoded":
-      rawData = req.rawBody;
-      data = JSON.parse(req.body.payload);
-      break;
-    default:
-      throw new Error(`Unsupported 'content-type' header. Received: ${req.headers["content-type"]}`);
-  }
-
-  return [rawData, data];
-}
+const {
+  verifySignature,
+  extractData,
+} = require("./helpers");
 
 async function webhookPush(req, res, settings, triggerControllers) {
   try {
@@ -90,7 +76,49 @@ PR ${requestParams.actionType}`;
   return Promise.resolve();
 }
 
+async function webhookRelease(req, res, settings, triggerControllers) {
+  try {
+    if (req.headers["x-github-event"] !== "release") {
+      throw new Error(`Rejected GitHub Event: ${JSON.stringify(req.headers["x-github-event"])}`);
+    }
+
+    const [rawData, data] = extractData(req);
+
+    if (data.action !== "released") {
+      throw new Error(`Rejected Release Action: ${JSON.stringify(data.action)}`);
+    }
+
+    const githubHash = req.headers["x-hub-signature-256"];
+
+    const executionMessage = (
+      `Github ${data.repository.name}\n`
+    + `Release ${data.release.tag_name}`
+    );
+
+    triggerControllers.forEach((trigger) => {
+      const {
+        repoName,
+        secret,
+      } = trigger.params;
+
+      if (repoName && repoName !== data.repository.name) {
+        return;
+      }
+      if (!verifySignature(secret, githubHash, rawData)) {
+        return;
+      }
+
+      trigger.execute(executionMessage, data);
+    });
+
+    res.status(200).send("OK");
+  } catch (error) {
+    res.status(422).send(error.message);
+  }
+}
+
 module.exports = {
   webhookPush,
   webhookPR,
+  webhookRelease,
 };

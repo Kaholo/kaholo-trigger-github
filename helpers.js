@@ -24,7 +24,27 @@ function matches(value, pattern) {
   return !pattern || micromatch.isMatch(value, pattern);
 }
 
+function extractData(req) {
+  let rawData = null;
+  let data = null;
+  switch (req.headers["content-type"]) {
+    case "application/json":
+      rawData = req.body;
+      data = req.body;
+      break;
+    case "application/x-www-form-urlencoded":
+      rawData = req.rawBody;
+      data = JSON.parse(req.body.payload);
+      break;
+    default:
+      throw new Error(`Unsupported 'content-type' header. Received: ${req.headers["content-type"]}`);
+  }
+
+  return [rawData, data];
+}
+
 module.exports = {
   verifySignature,
   matches,
+  extractData,
 };

@@ -102,7 +102,7 @@ async function webhookRelease(req, res, settings, triggerControllers) {
         secret,
       } = trigger.params;
 
-      if (repoName && matches(data.repository.name, repoName)) {
+      if (repoName && !matches(data.repository.name, repoName)) {
         return;
       }
       if (!verifySignature(secret, githubHash, rawData)) {

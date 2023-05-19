@@ -4,6 +4,7 @@ const PullRequest = require("./pullRequest");
 const {
   verifySignature,
   extractData,
+  matches,
 } = require("./helpers");
 
 async function webhookPush(req, res, settings, triggerControllers) {
@@ -101,7 +102,7 @@ async function webhookRelease(req, res, settings, triggerControllers) {
         secret,
       } = trigger.params;
 
-      if (repoName && repoName !== data.repository.name) {
+      if (repoName && !matches(data.repository.name, repoName)) {
         return;
       }
       if (!verifySignature(secret, githubHash, rawData)) {

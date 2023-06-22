@@ -5,7 +5,7 @@
   "execProgram": "node",
   "main": "app.js",
   "imgUrl": "logo.png",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Listens for and handles incoming GitHub webhooks",
   "category": "SOURCE CONTROL",
   "keywords": [

@@ -7,12 +7,19 @@
   "imgUrl": "logo.png",
   "version": "2.3.1",
   "description": "Listens for and handles incoming GitHub webhooks",
-  "category": "SOURCE CONTROL",
+  "category": "Source Control",
   "keywords": [
     "github",
     "git",
     "repository",
-    "commit"
+    "commit",
+    "release",
+    "version",
+    "revision",
+    "change",
+    "branch",
+    "control",
+    "source"
   ],
   "methods": [
     {

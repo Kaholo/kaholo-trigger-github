@@ -83,12 +83,10 @@ async function webhookRelease(req, res, settings, triggerControllers) {
       throw new Error(`Rejected GitHub Event: ${JSON.stringify(req.headers["x-github-event"])}`);
     }
 
+    const triggered = [];
     const [rawData, data] = extractData(req);
 
-    if (data.action !== "released") {
-      throw new Error(`Rejected Release Action: ${JSON.stringify(data.action)}`);
-    }
-
+    const githubEventAction = data.action;
     const githubHash = req.headers["x-hub-signature-256"];
 
     const executionMessage = (
@@ -96,23 +94,32 @@ async function webhookRelease(req, res, settings, triggerControllers) {
     + `Release ${data.release.tag_name}`
     );
 
-    triggerControllers.forEach((trigger) => {
+    triggerControllers.forEach((triggerController) => {
       const {
         repoName,
         secret,
-      } = trigger.params;
+        eventAction,
+      } = triggerController.params;
 
-      if (repoName && !matches(data.repository.name, repoName)) {
+      const isTriggerInvalid = (
+        (repoName && !matches(data.repository.name, repoName))
+        || (eventAction && eventAction !== githubEventAction)
+        || !verifySignature(secret, githubHash, rawData)
+      );
+
+      if (isTriggerInvalid) {
         return;
       }
-      if (!verifySignature(secret, githubHash, rawData)) {
-        return;
-      }
 
-      trigger.execute(executionMessage, data);
+      triggered.push({
+        repository: repoName,
+        action: githubEventAction,
+        triggerName: triggerController.name,
+      });
+      triggerController.execute(executionMessage, data);
     });
 
-    res.status(200).send("OK");
+    res.json({ triggered });
   } catch (error) {
     res.status(422).send(error.message);
   }

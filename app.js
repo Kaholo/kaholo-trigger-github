@@ -83,7 +83,7 @@ async function webhookRelease(req, res, settings, triggerControllers) {
       throw new Error(`Rejected GitHub Event: ${JSON.stringify(req.headers["x-github-event"])}`);
     }
 
-    const triggered = [];
+    const pipelinesTriggered = [];
     const [rawData, data] = extractData(req);
 
     const githubEventAction = data.action;
@@ -111,15 +111,19 @@ async function webhookRelease(req, res, settings, triggerControllers) {
         return;
       }
 
-      triggered.push({
+      pipelinesTriggered.push({
         repository: repoName,
         action: githubEventAction,
-        triggerName: triggerController.name,
+        name: triggerController.name,
       });
       triggerController.execute(executionMessage, data);
     });
 
-    res.json({ triggered });
+    if (pipelinesTriggered.length === 0) {
+      throw new Error("No pipelines were triggered");
+    }
+
+    res.json({ pipelinesTriggered });
   } catch (error) {
     res.status(422).send(error.message);
   }

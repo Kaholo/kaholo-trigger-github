@@ -103,7 +103,7 @@ async function webhookRelease(req, res, settings, triggerControllers) {
 
       const isTriggerInvalid = (
         (repoName && !matches(data.repository.name, repoName))
-        || (eventAction && eventAction !== githubEventAction)
+        || (eventAction && eventAction !== "any" && eventAction !== githubEventAction)
         || !verifySignature(secret, githubHash, rawData)
       );
 

@@ -93,6 +93,7 @@
           "viewName": "Trigger on Action",
           "type": "options",
           "description": "Action type on which to trigger, or \"Any\" for all actions.",
+          "default": "any",
           "options": [
             {
               "id": "any",
@@ -168,7 +169,12 @@
           "name": "eventAction",
           "viewName": "Event Action",
           "type": "options",
+          "default": "any",
           "options": [
+            {
+              "id": "any",
+              "name": "Any"
+            },
             {
               "id": "created",
               "name": "created"

@@ -72,11 +72,12 @@ This trigger expects an HTTP POST whenever there is an action performed on a pul
     - Synchronize
 
 ## Git Release:
-This trigger expects an HTTP POST whenever there is a release event. This means the header x-github-event is "release" and the payload's action is "released".
+This trigger expects an HTTP POST whenever there is a release event. This means the header x-github-event is "release". It will also trigger on a specific action if selected.
 
 ### Webhook URL:
 **{KAHOLO_URL}/webhook/github/release**
 
 ### Parameters:
-1. Secret(string) - GitHub webhook secret, stored in Kaholo Vault.
-2. Repository Name(string) - The name of the repository to watch for release events, this string is compared to `repository.name` from the payload. If not specified, then releases in any repository will trigger the Kaholo pipeline.
+1. Secret - GitHub webhook secret, stored in Kaholo Vault.
+2. Repository Name - The name of the repository to watch for release events, this string is compared to `repository.name` from the payload. If not specified, then releases in any repository will trigger the Kaholo pipeline.
+3. Event Action - choose the specific action that activates the trigger. This matches `action` from the payload. For example to trigger only once when a release is released, select action `released`. If left blank it will trigger on every action, e.g. a new release typically sends three requests - `release.created`, `release.published`, and `release.released`.

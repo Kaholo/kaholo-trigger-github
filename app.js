@@ -9,6 +9,7 @@ const {
 
 async function webhookPush(req, res, settings, triggerControllers) {
   try {
+    const pipelinesTriggered = [];
     const [rawData, data] = extractData(req);
 
     if (Push.isInitialRequest(data)) {
@@ -34,10 +35,18 @@ ${requestParams.pushType} Push`;
         return;
       }
 
+      pipelinesTriggered.push({
+        repository: requestParams.repositoryName,
+        branch: requestParams.branchName,
+      });
       trigger.execute(executionMessage, data);
     });
 
-    return res.status(200).send("OK");
+    if (pipelinesTriggered.length === 0) {
+      throw new Error("No pipelines were triggered");
+    }
+
+    res.json({ pipelinesTriggered });
   } catch (error) {
     res.status(422).send(error.toString());
   }

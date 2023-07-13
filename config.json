@@ -10,7 +10,6 @@
   "category": "Source Control",
   "keywords": [
     "github",
-    "git",
     "repository",
     "commit",
     "release",
@@ -19,7 +18,11 @@
     "change",
     "branch",
     "control",
-    "source"
+    "source",
+    "webhook",
+    "pull request",
+    "push",
+    "pr"
   ],
   "methods": [
     {

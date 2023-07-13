@@ -35,49 +35,81 @@ To match tags containing `"rc"`:
 
     *rc*
 
-## Git Push:
+## Method: GitHub Push:
 This trigger expects an HTTP POST whenever there is a push to a repository. This can mean either a branch push or a tag push.
 
-### Webhook URL:
-**{KAHOLO_URL}/webhook/github/push**
+### Webhook
+The webhook URL that should be provided on the GitHub end as "Payload URL" is **{KAHOLO_URL}/webhook/github/push**. For example if Kaholo is at `https://tfv610c.kaholodemo.net`, the webhook should POST to:
 
-### Parameters:
-1. Secret(string) - GitHub webhook secret, stored in Kaholo Vault. If not specified, using any secret or none on the GitHub side may trigger the pipeline.
-2. Repository Name(string) - The name of the repository to watch for push events. If not specified, then pushes to any repository will trigger the Kaholo pipeline.
-3. Branch Pattern(string) - The branch or branch [micromatch pattern](https://github.com/micromatch/micromatch) to filter. **If not specified, a push to any branch may trigger the pipeline**.
-4. Tag Pattern(string) - The tag or tag [micromatch pattern](https://github.com/micromatch/micromatch) to filter. **If not specified, a push to any tag may trigger the pipeline**.
+    https://tfv610c.kaholodemo.net/webhook/github/push
 
-## GitHub Pull Request:
+### Parameter: Webhook Secret
+This is the GitHub "Secret", a string in the Kaholo Vault that must match that sent by the GitHub webhook in order to be effective. If none is provided, any secret or no secret at all on the GitHub side may trigger the pipeline.
+
+### Parameter: Repository Name
+The name of the repository to watch for push events. If not specified, then pushes to any repository may trigger the Kaholo pipeline.
+
+### Parameter: Branch Pattern
+The branch or branch [micromatch pattern](https://github.com/micromatch/micromatch) to filter. If not specified, a push to any branch may trigger the pipeline.
+
+### Parameter: Tag Pattern
+The tag or tag [micromatch pattern](https://github.com/micromatch/micromatch) to filter. If not specified, a push to any tag may trigger the pipeline.
+
+## Method: GitHub Pull Request
 This trigger expects an HTTP POST whenever there is an action performed on a pull request in GitHub.
 
-### Webhook URL:
-**{KAHOLO_URL}/webhook/github/pr**
+### Webhook
+The webhook URL that should be provided on the GitHub end as "Payload URL" is **{KAHOLO_URL}/webhook/github/pr**. For example if Kaholo is at `https://tfv610c.kaholodemo.net`, the webhook should POST to:
 
-### Parameters:
-1. Secret(string) - GitHub webhook secret, stored in Kaholo Vault.
-2. Repository Name(string) - The name of the repository to watch for pull request events. If not specified, then pull request actions in any repository will trigger the Kaholo pipeline.
-3. Target Branch(string) - The target branch or target branch [micromatch pattern](https://github.com/micromatch/micromatch) (if not specified, then any target branch may trigger the pipeline)
-4. Source Branch(string) - The source branch or source branch [micromatch pattern](https://github.com/micromatch/micromatch) (if not specified, then any source branch may trigger the pipeline)
-5. Trigger on action(options) - The action(s) that will cause the pipeline to be triggered. Options are: 
-    - Any (any action at all)
-    - Opened
-    - Merged
-    - Declined
-    - Reopened
-    - Assigned
-    - Review Requested
-    - Review Request Removed
-    - Labeled
-    - Unlabeled
-    - Synchronize
+    https://tfv610c.kaholodemo.net/webhook/github/pr
 
-## Git Release:
+### Parameter: Webhook Secret
+This is the GitHub "Secret", a string in the Kaholo Vault that must match that sent by the GitHub webhook in order to be effective. If none is provided, any secret or no secret at all on the GitHub side may trigger the pipeline.
+
+### Parameter: Repository Name
+The name of the repository to watch for pull request events. If not specified, then pull requests in any repository may trigger the Kaholo pipeline.
+
+### Parameter: Target Branch
+The branch or branch [micromatch pattern](https://github.com/micromatch/micromatch) to filter the branch targeted. If not specified, a pull request to any branch may trigger the pipeline. This is the branch that corresponds to `pull_request.base.ref` in the GitHub payload.
+
+### Parameter: Source Branch
+The branch or branch [micromatch pattern](https://github.com/micromatch/micromatch) to filter the branch sourced. If not specified, a pull request from any branch may trigger the pipeline. This is the branch that corresponds to `pull_request.head.ref` in the GitHub payload.
+
+### Parameter: Trigger on Action
+Use this to select the specific action(s) that will cause the pipeline to be triggered. Options are: 
+* Any (any and every pull request action)
+* Opened
+* Merged
+* Declined
+* Reopened
+* Assigned
+* Review Requested
+* Review Request Removed
+* Labeled
+* Unlabeled
+* Synchronize
+
+## Method: GitHub Release
 This trigger expects an HTTP POST whenever there is a release event. This means the header x-github-event is "release". It will also trigger on a specific action if selected.
 
-### Webhook URL:
-**{KAHOLO_URL}/webhook/github/release**
+### Webhook
+The webhook URL that should be provided on the GitHub end as "Payload URL" is **{KAHOLO_URL}/webhook/github/release**. For example if Kaholo is at `https://tfv610c.kaholodemo.net`, the webhook is at:
 
-### Parameters:
-1. Secret - GitHub webhook secret, stored in Kaholo Vault.
-2. Repository Name - The name of the repository to watch for release events, this string is compared to `repository.name` from the payload. If not specified, then releases in any repository will trigger the Kaholo pipeline.
-3. Event Action - choose the specific action that activates the trigger. This matches `action` from the payload. For example to trigger only once when a release is released, select action `released`. If left blank it will trigger on every action, e.g. a new release typically sends three requests - `release.created`, `release.published`, and `release.released`.
+    https://tfv610c.kaholodemo.net/webhook/github/release
+
+### Parameter: Webhook Secret
+This is the GitHub "Secret", a string in the Kaholo Vault that must match that sent by the GitHub webhook in order to be effective. If none is provided, any secret or no secret at all on the GitHub side may trigger the pipeline.
+
+### Parameter: Repository Name
+The name of the repository to watch for release events. If not specified, then releases in any repository may trigger the Kaholo pipeline.
+
+### Parameter: Event Action
+Use this to select the specific action(s) that will cause the pipeline to be triggered. A new release typically sends three requests - `release.created`, `release.published`, and `release.released`. Options are: 
+* Any (any and every release action)
+* Created
+* Edited
+* Deleted
+* Released
+* Prereleased
+* Unpublished
+* Published

@@ -5,12 +5,11 @@
   "execProgram": "node",
   "main": "app.js",
   "imgUrl": "logo.png",
-  "version": "2.3.1",
+  "version": "2.4.0",
   "description": "Listens for and handles incoming GitHub webhooks",
   "category": "Source Control",
   "keywords": [
     "github",
-    "git",
     "repository",
     "commit",
     "release",
@@ -19,7 +18,11 @@
     "change",
     "branch",
     "control",
-    "source"
+    "source",
+    "webhook",
+    "pull request",
+    "push",
+    "pr"
   ],
   "methods": [
     {
@@ -90,7 +93,7 @@
         },
         {
           "name": "actionType",
-          "viewName": "Trigger on Action",
+          "viewName": "Event Action",
           "type": "options",
           "description": "Action type on which to trigger, or \"Any\" for all actions.",
           "default": "any",
@@ -169,6 +172,7 @@
           "name": "eventAction",
           "viewName": "Event Action",
           "type": "options",
+          "description": "Action type on which to trigger, or \"Any\" for all actions.",
           "default": "any",
           "options": [
             {
@@ -177,31 +181,31 @@
             },
             {
               "id": "created",
-              "name": "created"
+              "name": "Created"
             },
             {
               "id": "edited",
-              "name": "edited"
+              "name": "Edited"
             },
             {
               "id": "deleted",
-              "name": "deleted"
+              "name": "Deleted"
             },
             {
               "id": "released",
-              "name": "released"
+              "name": "Released"
             },
             {
               "id": "prereleased",
-              "name": "prereleased"
+              "name": "Prereleased"
             },
             {
               "id": "unpublished",
-              "name": "unpublished"
+              "name": "Unpublished"
             },
             {
               "id": "published",
-              "name": "published"
+              "name": "Published"
             }
           ]
         }

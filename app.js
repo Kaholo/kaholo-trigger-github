@@ -9,6 +9,7 @@ const {
 
 async function webhookPush(req, res, settings, triggerControllers) {
   try {
+    const pipelinesTriggered = [];
     const [rawData, data] = extractData(req);
 
     if (Push.isInitialRequest(data)) {
@@ -34,10 +35,18 @@ ${requestParams.pushType} Push`;
         return;
       }
 
+      pipelinesTriggered.push({
+        repository: requestParams.repositoryName,
+        branch: requestParams.branchName,
+      });
       trigger.execute(executionMessage, data);
     });
 
-    return res.status(200).send("OK");
+    if (pipelinesTriggered.length === 0) {
+      throw new Error("No pipelines were triggered");
+    }
+
+    res.json({ pipelinesTriggered });
   } catch (error) {
     res.status(422).send(error.toString());
   }
@@ -47,6 +56,7 @@ ${requestParams.pushType} Push`;
 
 async function webhookPR(req, res, settings, triggerControllers) {
   try {
+    const pipelinesTriggered = [];
     const [rawData, data] = extractData(req);
 
     if (PullRequest.isInitialRequest(data)) {
@@ -66,10 +76,18 @@ PR ${requestParams.actionType}`;
         return;
       }
 
+      pipelinesTriggered.push({
+        repository: requestParams.repositoryName,
+        action: triggerParams.actionType,
+      });
       trigger.execute(executionMessage, data);
     });
 
-    res.status(200).send("OK");
+    if (pipelinesTriggered.length === 0) {
+      throw new Error("No pipelines were triggered");
+    }
+
+    res.json({ pipelinesTriggered });
   } catch (error) {
     res.status(422).send(error.message);
   }
@@ -83,12 +101,10 @@ async function webhookRelease(req, res, settings, triggerControllers) {
       throw new Error(`Rejected GitHub Event: ${JSON.stringify(req.headers["x-github-event"])}`);
     }
 
+    const pipelinesTriggered = [];
     const [rawData, data] = extractData(req);
 
-    if (data.action !== "released") {
-      throw new Error(`Rejected Release Action: ${JSON.stringify(data.action)}`);
-    }
-
+    const githubEventAction = data.action;
     const githubHash = req.headers["x-hub-signature-256"];
 
     const executionMessage = (
@@ -96,23 +112,36 @@ async function webhookRelease(req, res, settings, triggerControllers) {
     + `Release ${data.release.tag_name}`
     );
 
-    triggerControllers.forEach((trigger) => {
+    triggerControllers.forEach((triggerController) => {
       const {
         repoName,
         secret,
-      } = trigger.params;
+        eventAction,
+      } = triggerController.params;
 
-      if (repoName && !matches(data.repository.name, repoName)) {
+      const isTriggerInvalid = (
+        (repoName && !matches(data.repository.name, repoName))
+        || (eventAction && eventAction !== "any" && eventAction !== githubEventAction)
+        || !verifySignature(secret, githubHash, rawData)
+      );
+
+      if (isTriggerInvalid) {
         return;
       }
-      if (!verifySignature(secret, githubHash, rawData)) {
-        return;
-      }
 
-      trigger.execute(executionMessage, data);
+      pipelinesTriggered.push({
+        repository: repoName,
+        action: githubEventAction,
+        name: triggerController.name,
+      });
+      triggerController.execute(executionMessage, data);
     });
 
-    res.status(200).send("OK");
+    if (pipelinesTriggered.length === 0) {
+      throw new Error("No pipelines were triggered");
+    }
+
+    res.json({ pipelinesTriggered });
   } catch (error) {
     res.status(422).send(error.message);
   }

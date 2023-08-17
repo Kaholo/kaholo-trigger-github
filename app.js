@@ -9,6 +9,10 @@ const {
 
 async function webhookPush(req, res, settings, triggerControllers) {
   try {
+    if (req.headers["x-github-event"] !== "push") {
+      throw new Error(`Rejected GitHub Event: ${JSON.stringify(req.headers["x-github-event"])}`);
+    }
+
     const pipelinesTriggered = [];
     const [rawData, data] = extractData(req);
 
@@ -56,6 +60,10 @@ ${requestParams.pushType} Push`;
 
 async function webhookPR(req, res, settings, triggerControllers) {
   try {
+    if (req.headers["x-github-event"] !== "pull_request") {
+      throw new Error(`Rejected GitHub Event: ${JSON.stringify(req.headers["x-github-event"])}`);
+    }
+
     const pipelinesTriggered = [];
     const [rawData, data] = extractData(req);
 
@@ -64,10 +72,11 @@ async function webhookPR(req, res, settings, triggerControllers) {
     }
 
     const requestParams = PullRequest.extractRequestParams(req, data);
-    const executionMessage = `\
-Github ${requestParams.repositoryName} \
-${requestParams.fromBranch}->${requestParams.toBranch} \
-PR ${requestParams.actionType}`;
+    const executionMessage = (
+      `Github ${requestParams.repositoryName}\n`
+      + `${requestParams.fromBranch}->${requestParams.toBranch}\n`
+      + `PR ${requestParams.actionType}`
+    );
 
     triggerControllers.forEach((trigger) => {
       const triggerParams = PullRequest.extractTriggerParams(trigger);
@@ -80,7 +89,7 @@ PR ${requestParams.actionType}`;
         repository: requestParams.repositoryName,
         action: triggerParams.actionType,
       });
-      trigger.execute(executionMessage, data);
+      trigger.execute(executionMessage, { data, triggerParams, requestParams });
     });
 
     if (pipelinesTriggered.length === 0) {
@@ -109,7 +118,7 @@ async function webhookRelease(req, res, settings, triggerControllers) {
 
     const executionMessage = (
       `Github ${data.repository.name}\n`
-    + `Release ${data.release.tag_name}`
+      + `Release ${data.release.tag_name}`
     );
 
     triggerControllers.forEach((triggerController) => {
